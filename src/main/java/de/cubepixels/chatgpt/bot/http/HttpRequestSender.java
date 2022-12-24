@@ -20,16 +20,22 @@ public class HttpRequestSender {
         this.httpClient = HttpClient.newBuilder().build();
     }
 
-    public void createRequest(String apiKey, String question) {
+    private String makeDefaultRequest(String apiKey, String question, int modelVersion) {
         // Create request
         // https://beta.openai.com/docs/api-reference/making-requests
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.openai.com/v1/completions"))
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer " + apiKey)
-            .POST(BodyPublishers.ofString(
-                "{\n  \"model\": \"text-davinci-003\",\n  \"prompt\": \"" + question
-                    + "\",\n  \"max_tokens\": 4000,\n  \"temperature\": 0\n}"))
+            .POST(BodyPublishers.ofString("{\n"
+                + "  \"model\": \"text-davinci-003\",\n"
+                + "  \"prompt\": \"" + question + "\",\n"
+                + "  \"temperature\": 0.12,\n"
+                + "  \"max_tokens\": 256,\n"
+                + "  \"top_p\": 0.63,\n"
+                + "  \"frequency_penalty\": 0,\n"
+                + "  \"presence_penalty\": 0\n"
+                + "}"))
             .build();
 
         try {
@@ -46,12 +52,20 @@ public class HttpRequestSender {
             JSONObject firstChoice = choices.getJSONObject(0);
 
             // Get the value of the "text" field from the first element of the "choices" array
-            String text = firstChoice.getString("text");
-
-            // Sends the response in the chat
-            plugin.sendBotMessage(text);
+            return firstChoice.getString("text");
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "§cError!";
+    }
+
+    public void createRequest(String apiKey, String question) {
+        String text = makeDefaultRequest(apiKey, question, 3);
+        // Sends the response in the chat
+        plugin.sendBotMessage(text);
+    }
+
+    public String createQuestionRequest(String apiKey, String question) {
+        return makeDefaultRequest(apiKey, question, 3);
     }
 }

@@ -44,7 +44,7 @@ public class AsyncChatListener implements Listener {
                 question = question.replaceAll("\"", "");
 
                 // Send HttpRequest
-                plugin.sendRequest(question);
+                plugin.sendRequest(plugin.getQuestionCollection().generateRequestString(question), question);
             }
         }.runTaskLaterAsynchronously(plugin, 1);
     }

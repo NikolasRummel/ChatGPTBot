@@ -1,5 +1,6 @@
 package de.cubepixels.chatgpt.bot;
 
+import de.cubepixels.chatgpt.bot.faq.QuestionCollection;
 import de.cubepixels.chatgpt.bot.http.HttpRequestSender;
 import de.cubepixels.chatgpt.bot.listener.AsyncChatListener;
 import lombok.Getter;
@@ -10,14 +11,18 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author Nikolas Rummel
  * @since 21.12.22
  */
+@Getter
 public class ChatGPTPlugin extends JavaPlugin {
 
+    private QuestionCollection questionCollection;
     private HttpRequestSender requestSender;
-    @Getter private String botName, prefix, chatColor, apiKey, permission;
+    private String botName, prefix, chatColor, apiKey, permission;
 
     @Override
     public void onEnable() {
         this.loadConfig();
+
+        this.questionCollection = new QuestionCollection(this);
         this.requestSender = new HttpRequestSender(this);
 
         super.getServer().getPluginManager().registerEvents(new AsyncChatListener(this), this);
@@ -33,13 +38,21 @@ public class ChatGPTPlugin extends JavaPlugin {
         this.permission = super.getConfig().getString("permission");
 
         assert this.apiKey != null;
-        if(this.apiKey.contains("your-api-key")) {
-            Bukkit.getConsoleSender().sendMessage("§cThe API-Key was not set! Please add your openai api-key in the config.yml!");
+        if (this.apiKey.contains("your-api-key")) {
+            Bukkit.getConsoleSender().sendMessage(
+                "§cThe API-Key was not set! Please add your openai api-key in the config.yml!");
         }
     }
 
-    public void sendRequest(String question) {
-        requestSender.createRequest(apiKey, question);
+    public void sendRequest(String questionEdited, String question) {
+        String response = requestSender.createQuestionRequest(apiKey, questionEdited);
+
+        // Works, because the ai is told to return "No match found"
+        if (response.contains("No match found")) {
+            requestSender.createRequest(apiKey, question);
+        } else {
+            questionCollection.sendAnswer(response);
+        }
     }
 
     public void sendBotMessage(String text) {
