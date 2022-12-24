@@ -10,26 +10,48 @@ import java.net.http.HttpResponse.BodyHandlers;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * @author Nikolas Rummel
+ * @since 21.12.22
+ */
 public class HttpRequestSender {
 
     private final ChatGPTPlugin plugin;
     private final HttpClient httpClient;
 
+    /**
+     * Instantiates a new Http request sender.
+     *
+     * @param plugin the ChatGPT Plugin
+     */
     public HttpRequestSender(ChatGPTPlugin plugin) {
         this.plugin = plugin;
         this.httpClient = HttpClient.newBuilder().build();
     }
 
-    public void createRequest(String apiKey, String question) {
+    /**
+     * Send an HTTP-Request to open.ai's api
+     *
+     * @param apiKey   the api key
+     * @param question the question
+     * @return the answer made by the ai
+     */
+    private String makeDefaultRequest(String apiKey, String question) {
         // Create request
         // https://beta.openai.com/docs/api-reference/making-requests
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.openai.com/v1/completions"))
             .header("Content-Type", "application/json")
             .header("Authorization", "Bearer " + apiKey)
-            .POST(BodyPublishers.ofString(
-                "{\n  \"model\": \"text-davinci-003\",\n  \"prompt\": \"" + question
-                    + "\",\n  \"max_tokens\": 4000,\n  \"temperature\": 0\n}"))
+            .POST(BodyPublishers.ofString("{\n"
+                + "  \"model\": \"text-davinci-003\",\n"
+                + "  \"prompt\": \"" + question + "\",\n"
+                + "  \"temperature\": 0.12,\n"
+                + "  \"max_tokens\": 256,\n"
+                + "  \"top_p\": 0.63,\n"
+                + "  \"frequency_penalty\": 0,\n"
+                + "  \"presence_penalty\": 0\n"
+                + "}"))
             .build();
 
         try {
@@ -46,12 +68,33 @@ public class HttpRequestSender {
             JSONObject firstChoice = choices.getJSONObject(0);
 
             // Get the value of the "text" field from the first element of the "choices" array
-            String text = firstChoice.getString("text");
-
-            // Sends the response in the chat
-            plugin.sendBotMessage(text);
+            return firstChoice.getString("text");
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "§cError!";
+    }
+
+    /**
+     * Creates a request and broadcasts the answer in the Minecraft chat.
+     *
+     * @param apiKey   the api key
+     * @param question the question
+     */
+    public void createRequest(String apiKey, String question) {
+        String text = makeDefaultRequest(apiKey, question);
+        // Sends the response in the chat
+        plugin.sendBotMessage(text);
+    }
+
+    /**
+     * Creates a normal request.
+     *
+     * @param apiKey   the api key
+     * @param question the specific question, to search for similarities in the QA's
+     * @return the answer made by openai
+     */
+    public String createQuestionRequest(String apiKey, String question) {
+        return makeDefaultRequest(apiKey, question);
     }
 }
