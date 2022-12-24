@@ -11,9 +11,12 @@ prefix: "§3§lChatGPT§8:"
 # The color of the messages the bot sends.
 messageColor: "§7§o"
 
-# Required permission to interact with the both.
-# Leaving this empty means that everyone can interact.
-permission: ""
+# Required permission to interact with the bot.
+permissions:
+  # Leaving this empty means that everyone can interact.
+  interact: ""
+  # This cannot be empty.
+  commands: "gpt.admin"
 
 # An API key of your open.ai account
 # To create one, follow these steps:
