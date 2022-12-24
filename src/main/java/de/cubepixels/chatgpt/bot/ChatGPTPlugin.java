@@ -1,5 +1,6 @@
 package de.cubepixels.chatgpt.bot;
 
+import de.cubepixels.chatgpt.bot.faq.QuestionCollection;
 import de.cubepixels.chatgpt.bot.http.HttpRequestSender;
 import de.cubepixels.chatgpt.bot.listener.AsyncChatListener;
 import org.bukkit.Bukkit;
@@ -11,12 +12,15 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class ChatGPTPlugin extends JavaPlugin {
 
+    private QuestionCollection questionCollection;
     private HttpRequestSender requestSender;
     private String botName, prefix, chatColor, apiKey;
 
     @Override
     public void onEnable() {
         this.loadConfig();
+
+        this.questionCollection = new QuestionCollection(this);
         this.requestSender = new HttpRequestSender(this);
 
         super.getServer().getPluginManager().registerEvents(new AsyncChatListener(this), this);
@@ -31,13 +35,21 @@ public class ChatGPTPlugin extends JavaPlugin {
         this.apiKey = super.getConfig().getString("apiKey");
 
         assert this.apiKey != null;
-        if(this.apiKey.contains("your-api-key")) {
-            Bukkit.getConsoleSender().sendMessage("§cThe API-Key was not set! Please add your openai api-key in the config.yml!");
+        if (this.apiKey.contains("your-api-key")) {
+            Bukkit.getConsoleSender().sendMessage(
+                "§cThe API-Key was not set! Please add your openai api-key in the config.yml!");
         }
     }
 
-    public void sendRequest(String question) {
-        requestSender.createRequest(apiKey, question);
+    public void sendRequest(String questionEdited, String question) {
+        String response = requestSender.createQuestionRequest(apiKey, questionEdited);
+
+        // Works, because the ai is told to return "No match found"
+        if (response.contains("No match found")) {
+            requestSender.createRequest(apiKey, question);
+        } else {
+            questionCollection.sendAnswer(response);
+        }
     }
 
     public void sendBotMessage(String text) {
@@ -48,5 +60,9 @@ public class ChatGPTPlugin extends JavaPlugin {
 
     public String getBotName() {
         return botName;
+    }
+
+    public QuestionCollection getQuestionCollection() {
+        return questionCollection;
     }
 }
