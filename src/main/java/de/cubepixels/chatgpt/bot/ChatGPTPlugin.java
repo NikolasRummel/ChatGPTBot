@@ -2,6 +2,7 @@ package de.cubepixels.chatgpt.bot;
 
 import de.cubepixels.chatgpt.bot.http.HttpRequestSender;
 import de.cubepixels.chatgpt.bot.listener.AsyncChatListener;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -12,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ChatGPTPlugin extends JavaPlugin {
 
     private HttpRequestSender requestSender;
-    private String botName, prefix, chatColor, apiKey;
+    @Getter private String botName, prefix, chatColor, apiKey, permission;
 
     @Override
     public void onEnable() {
@@ -29,6 +30,7 @@ public class ChatGPTPlugin extends JavaPlugin {
         this.prefix = super.getConfig().getString("prefix");
         this.chatColor = super.getConfig().getString("messageColor");
         this.apiKey = super.getConfig().getString("apiKey");
+        this.permission = super.getConfig().getString("permission");
 
         assert this.apiKey != null;
         if(this.apiKey.contains("your-api-key")) {
@@ -44,9 +46,5 @@ public class ChatGPTPlugin extends JavaPlugin {
         // Remove first linebreak
         text = text.substring(1);
         Bukkit.broadcastMessage(prefix + chatColor + text);
-    }
-
-    public String getBotName() {
-        return botName;
     }
 }
