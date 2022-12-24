@@ -10,17 +10,33 @@ import java.net.http.HttpResponse.BodyHandlers;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * @author Nikolas Rummel
+ * @since 21.12.22
+ */
 public class HttpRequestSender {
 
     private final ChatGPTPlugin plugin;
     private final HttpClient httpClient;
 
+    /**
+     * Instantiates a new Http request sender.
+     *
+     * @param plugin the ChatGPT Plugin
+     */
     public HttpRequestSender(ChatGPTPlugin plugin) {
         this.plugin = plugin;
         this.httpClient = HttpClient.newBuilder().build();
     }
 
-    private String makeDefaultRequest(String apiKey, String question, int modelVersion) {
+    /**
+     * Send an HTTP-Request to open.ai's api
+     *
+     * @param apiKey   the api key
+     * @param question the question
+     * @return the answer made by the ai
+     */
+    private String makeDefaultRequest(String apiKey, String question) {
         // Create request
         // https://beta.openai.com/docs/api-reference/making-requests
         HttpRequest request = HttpRequest.newBuilder()
@@ -59,13 +75,26 @@ public class HttpRequestSender {
         return "§cError!";
     }
 
+    /**
+     * Creates a request and broadcasts the answer in the Minecraft chat.
+     *
+     * @param apiKey   the api key
+     * @param question the question
+     */
     public void createRequest(String apiKey, String question) {
-        String text = makeDefaultRequest(apiKey, question, 3);
+        String text = makeDefaultRequest(apiKey, question);
         // Sends the response in the chat
         plugin.sendBotMessage(text);
     }
 
+    /**
+     * Creates a normal request.
+     *
+     * @param apiKey   the api key
+     * @param question the specific question, to search for similarities in the QA's
+     * @return the answer made by openai
+     */
     public String createQuestionRequest(String apiKey, String question) {
-        return makeDefaultRequest(apiKey, question, 3);
+        return makeDefaultRequest(apiKey, question);
     }
 }
