@@ -26,7 +26,7 @@ public class AsyncChatListener implements Listener {
     }
 
     /**
-     * Handels the chatevent
+     * Handles the ChatEvent
      *
      * @param event the event
      */
@@ -38,10 +38,11 @@ public class AsyncChatListener implements Listener {
         }
 
         // Check if permission was set
-        if (plugin.getPermission().length() != 0) {
+        if (plugin.getInteractPermission().length() != 0) {
 
             // Check if the player has the set permission
-            if (!event.getPlayer().hasPermission(plugin.getPermission())) {
+            if (!event.getPlayer().hasPermission(plugin.getInteractPermission())) {
+                event.getPlayer().sendMessage(plugin.getPrefix() + plugin.getChatColor() + " I'm sorry, but you don't have enough permissions to interact with me.");
                 return;
             }
         }

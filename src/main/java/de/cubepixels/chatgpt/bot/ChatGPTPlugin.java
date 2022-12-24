@@ -1,5 +1,6 @@
 package de.cubepixels.chatgpt.bot;
 
+import de.cubepixels.chatgpt.bot.commands.PluginCommand;
 import de.cubepixels.chatgpt.bot.http.HttpRequestSender;
 import de.cubepixels.chatgpt.bot.listener.AsyncChatListener;
 import de.cubepixels.chatgpt.bot.question.QuestionCollection;
@@ -18,45 +19,51 @@ public class ChatGPTPlugin extends JavaPlugin {
 
     private QuestionCollection questionCollection;
     private HttpRequestSender requestSender;
-    private String botName, prefix, chatColor, apiKey, permission;
+    private String botName, prefix, chatColor, apiKey, interactPermission, commandsPermission;
 
 
     @Override
     public void onEnable() {
+        super.saveDefaultConfig();
         this.loadConfig();
 
         this.questionCollection = new QuestionCollection(this);
         this.requestSender = new HttpRequestSender(this);
 
+        // Register the Chat Event
         super.getServer().getPluginManager().registerEvents(new AsyncChatListener(this), this);
+
+        // Register the Plugin Command
+        super.getCommand("gpt").setExecutor(new PluginCommand(this));
     }
 
     /**
-     * Loads the config and check if the api-key was set.
+     * Loads the config and checks if the api-key was set.
      */
-    private void loadConfig() {
-        super.saveDefaultConfig();
+    public void loadConfig() {
 
         this.botName = super.getConfig().getString("botName");
         this.prefix = super.getConfig().getString("prefix");
         this.chatColor = super.getConfig().getString("messageColor");
         this.apiKey = super.getConfig().getString("apiKey");
-        this.permission = super.getConfig().getString("permission");
+        this.interactPermission = super.getConfig().getString("permissions.interact");
+        this.commandsPermission = super.getConfig().getString("permissions.commands");
 
         assert this.apiKey != null;
         if (this.apiKey.contains("your-api-key")) {
             Bukkit.getConsoleSender().sendMessage(
                 "§cThe API-Key was not set! Please add your openai api-key in the config.yml!");
         }
+        super.reloadConfig();
     }
 
     /**
      * First it checks if the question of a user is a QA and if so, it sends the corresponding
      * answer.
      * <p>
-     * But if the question doesn't mach to a QA, a normal request to the ai will be sent.
+     * But if the question doesn't mach to a QA, a normal request to the AI will be sent.
      *
-     * @param questionEdited the specific question for the ai to respond correctly
+     * @param questionEdited the specific question for the AI to respond correctly
      * @param question       the question a user made
      */
     public void sendRequest(String questionEdited, String question) {
