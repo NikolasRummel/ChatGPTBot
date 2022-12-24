@@ -24,6 +24,15 @@ public class AsyncChatListener implements Listener {
             return;
         }
 
+        // Check if permission was set
+        if (plugin.getPermission().length() != 0) {
+
+            // Check if the player has the set permission
+            if(!event.getPlayer().hasPermission(plugin.getPermission())) {
+                return;
+            }
+        }
+
         // Async because the question would be in chat after the answer
         new BukkitRunnable() {
             @Override
