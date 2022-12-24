@@ -1,4 +1,4 @@
-package de.cubepixels.chatgpt.bot.faq;
+package de.cubepixels.chatgpt.bot.question;
 
 /**
  * @author Nikolas Rummel

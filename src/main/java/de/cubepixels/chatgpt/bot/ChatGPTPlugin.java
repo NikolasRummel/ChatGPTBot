@@ -1,6 +1,6 @@
 package de.cubepixels.chatgpt.bot;
 
-import de.cubepixels.chatgpt.bot.faq.QuestionCollection;
+import de.cubepixels.chatgpt.bot.question.QuestionCollection;
 import de.cubepixels.chatgpt.bot.http.HttpRequestSender;
 import de.cubepixels.chatgpt.bot.listener.AsyncChatListener;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package de.cubepixels.chatgpt.bot.faq;
+package de.cubepixels.chatgpt.bot.question;
 
 import de.cubepixels.chatgpt.bot.ChatGPTPlugin;
 import java.util.ArrayList;
