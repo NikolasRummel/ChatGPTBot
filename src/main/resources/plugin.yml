@@ -3,3 +3,5 @@ version: 1.0
 api-version: 1.19
 author: CubePixels | Nikolas Rummel
 main: de.cubepixels.chatgpt.bot.ChatGPTPlugin
+libraries
+  - 'org.json:json:20220924'
